@@ -8,8 +8,8 @@ import (
 	"strings"
 )
 
-func Parse(folderPath string, debug bool) {
-	var keyBindings []internal.KeyBinding
+func Parse(folderPath string, debug bool) []internal.Keybinding {
+	var keybindings []internal.Keybinding
 
 	files := loader.LoadFolder(folderPath)
 
@@ -25,15 +25,19 @@ func Parse(folderPath string, debug bool) {
 		for i, line := range lines {
 			result := oneLine(line, re, f, i, debug)
 			if result != nil {
-				keyBindings = append(keyBindings, *result)
+				keybindings = append(keybindings, *result)
 			}
 		}
 	}
 
-	fmt.Println("Parsed", len(keyBindings), "key bindings")
+	if debug {
+		fmt.Printf("Found %d keybindings\n", len(keybindings))
+	}
+
+	return keybindings
 }
 
-func oneLine(line string, re *regexp.Regexp, f loader.File, i int, debug bool) *internal.KeyBinding {
+func oneLine(line string, re *regexp.Regexp, f loader.File, i int, debug bool) *internal.Keybinding {
 	if strings.Contains(line, "hs.hotkey.bind(") {
 		matches := re.FindStringSubmatch(line)
 		if len(matches) == 3 {
@@ -42,11 +46,11 @@ func oneLine(line string, re *regexp.Regexp, f loader.File, i int, debug bool) *
 
 			modifiers := parseModifiers(modifiersStr)
 
-			binding := internal.KeyBinding{
+			binding := internal.Keybinding{
 				Modifiers: modifiers,
 				Key:       key,
 				Breadcrumbs: internal.Breadcrumbs{
-					FileName: f.Path,
+					FileName: f.Name,
 					Line:     i + 1,
 				},
 			}

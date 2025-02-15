@@ -1,6 +1,6 @@
 package internal
 
-type KeyBinding struct {
+type Keybinding struct {
 	Modifiers   []string
 	Key         string
 	Breadcrumbs Breadcrumbs
