@@ -26,6 +26,13 @@ func LoadFolder(folderPath string, debug bool) []File {
 		log.Println("...")
 	}
 
+	if _, err := os.Stat(folder); os.IsNotExist(err) {
+		if debug {
+			log.Printf("Folder %q does not exist. Skipping...", folder)
+		}
+		return []File{}
+	}
+
 	var loadedFiles []File
 
 	err := filepath.WalkDir(folder, func(path string, d fs.DirEntry, err error) error {
