@@ -6,11 +6,12 @@ import (
 )
 
 type Model struct {
-	keybindings []internal.Keybinding
-	cursor      int
-	debug       []string // what you see in the UI
-	debugCh     <-chan string
-	terminal    terminal
+	keybindings  []internal.Keybinding
+	cursor       int
+	debugEnabled bool
+	debug        []string // what you see in the UI
+	debugCh      <-chan string
+	terminal     terminal
 }
 
 type terminal struct {
@@ -18,12 +19,13 @@ type terminal struct {
 	height int
 }
 
-func InitialModel(keybindings []internal.Keybinding, debugCh <-chan string) Model {
+func InitialModel(keybindings []internal.Keybinding, debugEnabled bool, debugCh <-chan string) Model {
 	return Model{
-		keybindings: keybindings,
-		cursor:      0,
-		debug:       []string{},
-		debugCh:     debugCh,
+		keybindings:  keybindings,
+		cursor:       0,
+		debugEnabled: debugEnabled,
+		debug:        []string{},
+		debugCh:      debugCh,
 		terminal: terminal{
 			width:  80,
 			height: 24,

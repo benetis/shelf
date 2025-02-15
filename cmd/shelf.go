@@ -13,6 +13,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var debugFlag bool
+
 var rootCmd = &cobra.Command{
 	Use:   "shelf",
 	Short: "Displays configured shortcuts for various applications.",
@@ -24,15 +26,19 @@ var rootCmd = &cobra.Command{
 
 		// hammerspoon
 		defaultPath := "~/.hammerspoon"
-		keybindings = slices.Concat(keybindings, hammerparser.Parse(defaultPath, true))
+		keybindings = slices.Concat(keybindings, hammerparser.Parse(defaultPath, debugFlag))
 
-		p := tea.NewProgram(display.InitialModel(keybindings, debugWriter.Channel()))
+		p := tea.NewProgram(display.InitialModel(keybindings, debugFlag, debugWriter.Channel()))
 
 		_, err := p.Run()
 		if err != nil {
 			panic(fmt.Errorf("cannot run tea program: %w", err))
 		}
 	},
+}
+
+func init() {
+	rootCmd.PersistentFlags().BoolVarP(&debugFlag, "debug", "d", false, "Enable debug output")
 }
 
 func Execute() {

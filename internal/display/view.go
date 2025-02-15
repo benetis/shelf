@@ -33,29 +33,39 @@ func (m Model) View() string {
 		b.WriteString(line)
 	}
 
-	b.WriteString("\n" + strings.Repeat("─", m.terminal.width) + "\n")
-	b.WriteString(centerText("DEBUG PANEL", m.terminal.width) + "\n")
-	b.WriteString(strings.Repeat("─", m.terminal.width) + "\n")
+	debugLines := m.debugConsole(&b)
 
-	maxDebugLines := 15
-	startIdx := 0
-	if len(m.debug) > maxDebugLines {
-		startIdx = len(m.debug) - maxDebugLines
-	}
-	for _, msg := range m.debug[startIdx:] {
-		b.WriteString(msg)
-		if !strings.HasSuffix(msg, "\n") {
-			b.WriteString("\n")
-		}
-	}
-
-	m.fillRestOfHeightWithBlank(&b, maxDebugLines)
+	m.fillRestOfHeightWithBlank(&b, debugLines)
 
 	return b.String()
 }
 
-func (m Model) fillRestOfHeightWithBlank(b *strings.Builder, maxDebugLines int) {
-	linesUsed := 6 + len(m.keybindings) + maxDebugLines
+func (m Model) debugConsole(b *strings.Builder) int {
+	if m.debugEnabled {
+		b.WriteString("\n" + strings.Repeat("─", m.terminal.width) + "\n")
+		b.WriteString(centerText("DEBUG PANEL", m.terminal.width) + "\n")
+		b.WriteString(strings.Repeat("─", m.terminal.width) + "\n")
+
+		maxDebugLines := 15
+		startIdx := 0
+		if len(m.debug) > maxDebugLines {
+			startIdx = len(m.debug) - maxDebugLines
+		}
+		for _, msg := range m.debug[startIdx:] {
+			b.WriteString(msg)
+			if !strings.HasSuffix(msg, "\n") {
+				b.WriteString("\n")
+			}
+		}
+
+		return maxDebugLines
+	}
+
+	return 0
+}
+
+func (m Model) fillRestOfHeightWithBlank(b *strings.Builder, reserveForDebug int) {
+	linesUsed := 6 + len(m.keybindings) + reserveForDebug
 	for i := linesUsed; i < m.terminal.height; i++ {
 		b.WriteString("\n")
 	}
