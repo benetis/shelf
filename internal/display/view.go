@@ -8,7 +8,7 @@ import (
 func (m Model) View() string {
 	var b strings.Builder
 
-	statusBar := "Shelf - A terminal keybinding cheat sheet"
+	statusBar := "Shelf - Custom keybindings in one place"
 
 	b.WriteString(strings.Repeat("─", m.terminal.width) + "\n")
 	b.WriteString(centerText(statusBar, m.terminal.width) + "\n")
