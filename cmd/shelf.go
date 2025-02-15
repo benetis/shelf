@@ -12,7 +12,7 @@ var rootCmd = &cobra.Command{
 	Short: "Displays configured shortcuts for various applications.",
 	Run: func(cmd *cobra.Command, args []string) {
 		defaultPath := "~/.hammerspoon"
-		hammerparser.Parse(defaultPath)
+		hammerparser.Parse(defaultPath, true)
 	},
 }
 

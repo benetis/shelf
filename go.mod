@@ -3,7 +3,9 @@ module github.com/benetis/shelf
 go 1.24.0
 
 require (
+	github.com/alecthomas/participle/v2 v2.1.1
 	github.com/charmbracelet/bubbletea v1.3.3
+	github.com/prataprc/goparsec v0.0.0-20211219142520-daac0e635e7e
 	github.com/spf13/cobra v1.8.1
 )
 

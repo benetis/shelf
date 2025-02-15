@@ -1,4 +1,4 @@
-package hammerparser
+package loader
 
 import (
 	"fmt"
@@ -17,7 +17,7 @@ type File struct {
 	Path     string
 }
 
-func loadFolder(folderPath string) []File {
+func LoadFolder(folderPath string) []File {
 	folder := replaceTilde(folderPath)
 
 	fmt.Print("Loading folder at", folder)

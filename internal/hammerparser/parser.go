@@ -2,24 +2,74 @@ package hammerparser
 
 import (
 	"fmt"
+	"github.com/benetis/shelf/internal"
+	"github.com/benetis/shelf/internal/loader"
+	"regexp"
+	"strings"
 )
 
-type KeyBinding struct {
-	Modifiers []string
-	Key       string
-}
+func Parse(folderPath string, debug bool) {
+	var keyBindings []internal.KeyBinding
 
-func Parse(folderPath string) {
-	fmt.Println("Parsing...")
+	files := loader.LoadFolder(folderPath)
 
-	files := loadFolder(folderPath)
+	re := regexp.MustCompile(
+		`hs\.hotkey\.bind\(` + // Match 'hs.hotkey.bind('
+			`\{([^}]+)\}` + // Capture the modifiers inside curly braces
+			`,\s*` + // Match a comma followed by optional whitespace
+			`"([^"]+)`, // Capture the key inside double quotes
+	)
 
-	for _, file := range files {
-		fmt.Println(file.Path)
+	for _, f := range files {
+		lines := strings.Split(string(f.Contents), "\n")
+		for i, line := range lines {
+			result := oneLine(line, re, f, i, debug)
+			if result != nil {
+				keyBindings = append(keyBindings, *result)
+			}
+		}
 	}
 
-	//chunk, err := parse.Parse(loadFile(), "init.lua")
-	//if err != nil {
-	//	panic(err)
-	//}
+	fmt.Println("Parsed", len(keyBindings), "key bindings")
+}
+
+func oneLine(line string, re *regexp.Regexp, f loader.File, i int, debug bool) *internal.KeyBinding {
+	if strings.Contains(line, "hs.hotkey.bind(") {
+		matches := re.FindStringSubmatch(line)
+		if len(matches) == 3 {
+			modifiersStr := matches[1]
+			key := matches[2]
+
+			modifiers := parseModifiers(modifiersStr)
+
+			binding := internal.KeyBinding{
+				Modifiers: modifiers,
+				Key:       key,
+				Breadcrumbs: internal.Breadcrumbs{
+					FileName: f.Path,
+					Line:     i + 1,
+				},
+			}
+
+			return &binding
+		} else {
+			if debug {
+				fmt.Printf("%s:%d: unmatched line: %s\n", f.Path, i+1, line)
+			}
+			return nil
+		}
+	}
+	return nil
+}
+
+func parseModifiers(modifiersStr string) []string {
+	parts := strings.Split(modifiersStr, ",")
+	var modifiers []string
+	for _, p := range parts {
+		mod := strings.Trim(p, ` "'`)
+		if mod != "" {
+			modifiers = append(modifiers, mod)
+		}
+	}
+	return modifiers
 }
