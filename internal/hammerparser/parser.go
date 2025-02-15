@@ -1,17 +1,24 @@
 package hammerparser
 
 import (
-	"fmt"
 	"github.com/benetis/shelf/internal"
 	"github.com/benetis/shelf/internal/loader"
+	"log"
 	"regexp"
 	"strings"
+	"time"
 )
 
 func Parse(folderPath string, debug bool) []internal.Keybinding {
+	startLoad := time.Now()
 	var keybindings []internal.Keybinding
 
-	files := loader.LoadFolder(folderPath)
+	files := loader.LoadFolder(folderPath, debug)
+	loadDuration := time.Since(startLoad)
+
+	if debug {
+		log.Printf("Loaded %d files in %s\n", len(files), loadDuration)
+	}
 
 	re := regexp.MustCompile(
 		`hs\.hotkey\.bind\(` + // Match 'hs.hotkey.bind('
@@ -21,17 +28,22 @@ func Parse(folderPath string, debug bool) []internal.Keybinding {
 	)
 
 	for _, f := range files {
+		startFileParse := time.Now()
 		lines := strings.Split(string(f.Contents), "\n")
 		for i, line := range lines {
 			result := oneLine(line, re, f, i, debug)
 			if result != nil {
+				result.Telemetry = internal.Telemetry{
+					Parse: time.Since(startFileParse),
+				}
+
 				keybindings = append(keybindings, *result)
 			}
 		}
 	}
 
 	if debug {
-		fmt.Printf("Found %d keybindings\n", len(keybindings))
+		log.Printf("Found %d keybindings\n", len(keybindings))
 	}
 
 	return keybindings
@@ -58,7 +70,7 @@ func oneLine(line string, re *regexp.Regexp, f loader.File, i int, debug bool) *
 			return &binding
 		} else {
 			if debug {
-				fmt.Printf("%s:%d: unmatched line: %s\n", f.Path, i+1, line)
+				log.Printf("%s:%d: unmatched line: %s\n", f.Path, i+1, line)
 			}
 			return nil
 		}

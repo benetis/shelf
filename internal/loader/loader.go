@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"log"
 	"os"
 	"path/filepath"
 )
@@ -17,11 +18,13 @@ type File struct {
 	Path     string
 }
 
-func LoadFolder(folderPath string) []File {
+func LoadFolder(folderPath string, debug bool) []File {
 	folder := replaceTilde(folderPath)
 
-	fmt.Print("Loading folder at", folder)
-	fmt.Println("...")
+	if debug {
+		log.Print("Loading folder at", folder)
+		log.Println("...")
+	}
 
 	var loadedFiles []File
 

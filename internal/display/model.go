@@ -8,8 +8,9 @@ import (
 type Model struct {
 	keybindings []internal.Keybinding
 	cursor      int
-
-	terminal terminal
+	debug       []string // what you see in the UI
+	debugCh     <-chan string
+	terminal    terminal
 }
 
 type terminal struct {
@@ -17,10 +18,12 @@ type terminal struct {
 	height int
 }
 
-func InitialModel(keybindings []internal.Keybinding) Model {
+func InitialModel(keybindings []internal.Keybinding, debugCh <-chan string) Model {
 	return Model{
 		keybindings: keybindings,
 		cursor:      0,
+		debug:       []string{},
+		debugCh:     debugCh,
 		terminal: terminal{
 			width:  80,
 			height: 24,
@@ -29,5 +32,12 @@ func InitialModel(keybindings []internal.Keybinding) Model {
 }
 
 func (m Model) Init() tea.Cmd {
-	return nil
+	return listenForDebug(m.debugCh)
+}
+
+func listenForDebug(ch <-chan string) tea.Cmd {
+	return func() tea.Msg {
+		msg := <-ch
+		return internal.DebugMsg(msg)
+	}
 }

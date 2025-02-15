@@ -1,6 +1,9 @@
 package display
 
-import tea "github.com/charmbracelet/bubbletea"
+import (
+	"github.com/benetis/shelf/internal"
+	tea "github.com/charmbracelet/bubbletea"
+)
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
@@ -22,6 +25,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.cursor++
 			}
 		}
+	case internal.DebugMsg:
+		m.debug = append(m.debug, string(msg))
+
+		m.trimLog()
+
+		return m, listenForDebug(m.debugCh)
 	}
 	return m, nil
+}
+
+func (m Model) trimLog() {
+	if len(m.debug) > 100 {
+		m.debug = m.debug[len(m.debug)-100:]
+	}
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/benetis/shelf/internal/display"
 	"github.com/benetis/shelf/internal/hammerparser"
 	tea "github.com/charmbracelet/bubbletea"
+	"log"
 	"os"
 	"slices"
 
@@ -18,11 +19,14 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		var keybindings []internal.Keybinding
 
+		debugWriter := internal.NewDebugWriter()
+		log.SetOutput(debugWriter)
+
 		// hammerspoon
 		defaultPath := "~/.hammerspoon"
 		keybindings = slices.Concat(keybindings, hammerparser.Parse(defaultPath, true))
 
-		p := tea.NewProgram(display.InitialModel(keybindings))
+		p := tea.NewProgram(display.InitialModel(keybindings, debugWriter.Channel()))
 
 		_, err := p.Run()
 		if err != nil {
