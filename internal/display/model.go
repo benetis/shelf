@@ -2,12 +2,14 @@ package display
 
 import (
 	"github.com/benetis/shelf/internal"
+	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+const defaultListHeight = 18
+
 type Model struct {
-	keybindings  []internal.Keybinding
-	cursor       int
+	list         list.Model
 	debugEnabled bool
 	debug        []string // what you see in the UI
 	debugCh      <-chan string
@@ -20,9 +22,19 @@ type terminal struct {
 }
 
 func InitialModel(keybindings []internal.Keybinding, debugEnabled bool, debugCh <-chan string) Model {
+	var items []list.Item
+	for _, kb := range keybindings {
+		items = append(items, keybindingItem{kb: kb})
+	}
+
+	l := list.New(items, list.NewDefaultDelegate(), 80, defaultListHeight)
+	l.Title = "Shelf - Custom keybindings in one place"
+	l.SetShowStatusBar(false)
+	l.SetFilteringEnabled(false)
+	l.SetShowHelp(false)
+
 	return Model{
-		keybindings:  keybindings,
-		cursor:       0,
+		list:         l,
 		debugEnabled: debugEnabled,
 		debug:        []string{},
 		debugCh:      debugCh,

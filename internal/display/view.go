@@ -6,101 +6,54 @@ import (
 	"strings"
 )
 
+type keybindingItem struct {
+	kb internal.Keybinding
+}
+
+func (i keybindingItem) Title() string {
+	return fmt.Sprintf("%s: %s", i.kb.Namespace, strings.Join(i.kb.Keys, "+"))
+}
+
+func (i keybindingItem) Description() string {
+	lineInfo := ""
+	if i.kb.Breadcrumbs.Line != 0 {
+		lineInfo = fmt.Sprintf("Line: %d,", i.kb.Breadcrumbs.Line)
+	}
+	return fmt.Sprintf("(File: %s, %s %d ms)",
+		i.kb.Breadcrumbs.FileName,
+		lineInfo,
+		i.kb.Telemetry.Parse.Milliseconds(),
+	)
+}
+
+func (i keybindingItem) FilterValue() string {
+	return i.kb.Namespace
+}
+
 func (m Model) View() string {
 	var b strings.Builder
 
-	statusBar := "Shelf - Custom keybindings in one place"
+	border := strings.Repeat("─", m.terminal.width)
 
-	b.WriteString(strings.Repeat("─", m.terminal.width) + "\n")
-	b.WriteString(centerText(statusBar, m.terminal.width) + "\n")
-	b.WriteString(strings.Repeat("─", m.terminal.width) + "\n\n")
+	b.WriteString(m.list.View())
 
-	m.paintKeybindings(&b)
-
-	debugLines := m.paintDebugConsole(&b)
-
-	m.fillRestOfHeightWithBlank(&b, debugLines)
-
-	return b.String()
-}
-
-func (m Model) paintKeybindings(b *strings.Builder) {
-	b.WriteString("Keybindings:\n\n")
-	for i, kb := range m.keybindings {
-		cursor := " "
-		if m.cursor == i {
-			cursor = ">" // Mark current keybinding with a cursor.
-		}
-
-		keys := strings.Join(kb.Keys, "+")
-
-		paddedNamespace := fmt.Sprintf("%-15s", kb.Namespace)
-
-		breadcrumbs := m.printBreadcrumbs(kb)
-
-		var metadata string
-		if kb.Metadata != "" {
-			metadata = fmt.Sprintf(" (%s)", kb.Metadata)
-		}
-
-		line := fmt.Sprintf("%s %s: %s %s %s\n",
-			cursor,
-			paddedNamespace,
-			keys,
-			metadata,
-			breadcrumbs,
-		)
-		b.WriteString(line)
-	}
-
-	if len(m.keybindings) == 0 {
-		b.WriteString("No keybindings found.\n")
-	}
-}
-
-func (m Model) printBreadcrumbs(kb internal.Keybinding) string {
-	lineInfo := fmt.Sprintf("Line: %d,", kb.Breadcrumbs.Line)
-	if kb.Breadcrumbs.Line == 0 {
-		lineInfo = ""
-	}
-
-	breadcrumbs := fmt.Sprintf("(File: %s,%s %d ms)",
-		kb.Breadcrumbs.FileName,
-		lineInfo,
-		kb.Telemetry.Parse.Milliseconds(),
-	)
-	return breadcrumbs
-}
-
-func (m Model) paintDebugConsole(b *strings.Builder) int {
 	if m.debugEnabled {
-		b.WriteString("\n" + strings.Repeat("─", m.terminal.width) + "\n")
+		b.WriteString("\n" + border + "\n")
 		b.WriteString(centerText("DEBUG PANEL", m.terminal.width) + "\n")
-		b.WriteString(strings.Repeat("─", m.terminal.width) + "\n")
-
-		maxDebugLines := 15
-		startIdx := 0
-		if len(m.debug) > maxDebugLines {
-			startIdx = len(m.debug) - maxDebugLines
-		}
-		for _, msg := range m.debug[startIdx:] {
+		b.WriteString(border + "\n")
+		for _, msg := range m.debug {
 			b.WriteString(msg)
 			if !strings.HasSuffix(msg, "\n") {
 				b.WriteString("\n")
 			}
 		}
-
-		return maxDebugLines
 	}
 
-	return 0
-}
-
-func (m Model) fillRestOfHeightWithBlank(b *strings.Builder, reserveForDebug int) {
-	linesUsed := 6 + len(m.keybindings) + reserveForDebug
-	for i := linesUsed; i < m.terminal.height; i++ {
-		b.WriteString("\n")
+	viewLines := strings.Split(b.String(), "\n")
+	for len(viewLines) < m.terminal.height {
+		viewLines = append(viewLines, "")
 	}
+	return strings.Join(viewLines, "\n")
 }
 
 func centerText(text string, width int) string {
