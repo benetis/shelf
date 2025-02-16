@@ -31,13 +31,21 @@ func (m Model) paintKeybindings(b *strings.Builder) {
 			cursor = ">" // Mark current keybinding with a cursor.
 		}
 
-		modStr := strings.Join(kb.Modifiers, "+")
-		line := fmt.Sprintf("%s %s: %s (File: %s, Line: %d, %d ms)\n",
+		keys := strings.Join(kb.Keys, "+")
+
+		paddedNamespace := fmt.Sprintf("%-15s", kb.Namespace)
+
+		lineInfo := fmt.Sprintf("Line: %d,", kb.Breadcrumbs.Line)
+		if kb.Breadcrumbs.Line == 0 {
+			lineInfo = ""
+		}
+
+		line := fmt.Sprintf("%s %s: %s (File: %s,%s %d ms)\n",
 			cursor,
-			modStr,
-			kb.Key,
+			paddedNamespace,
+			keys,
 			kb.Breadcrumbs.FileName,
-			kb.Breadcrumbs.Line,
+			lineInfo,
 			kb.Telemetry.Parse.Milliseconds(),
 		)
 		b.WriteString(line)

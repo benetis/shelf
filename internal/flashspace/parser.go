@@ -50,11 +50,10 @@ func Parse(filePath string, debug bool) []internal.Keybinding {
 	for _, p := range f.Profiles {
 		for _, w := range p.Workspaces {
 			keybindings = append(keybindings, internal.Keybinding{
-				Modifiers: []string{},
-				Key:       w.Shortcut,
+				Keys:      []string{w.Shortcut},
+				Namespace: "workspace",
 				Breadcrumbs: internal.Breadcrumbs{
 					FileName: file.Name,
-					Line:     0,
 				},
 				Telemetry: internal.Telemetry{
 					Parse: endParse,

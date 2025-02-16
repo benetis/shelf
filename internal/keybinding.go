@@ -3,8 +3,8 @@ package internal
 import "time"
 
 type Keybinding struct {
-	Modifiers   []string
-	Key         string
+	Keys        []string
+	Namespace   string
 	Breadcrumbs Breadcrumbs
 	Telemetry   Telemetry
 }

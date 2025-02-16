@@ -59,8 +59,8 @@ func oneLine(line string, re *regexp.Regexp, f loader.File, i int, debug bool) *
 			modifiers := parseModifiers(modifiersStr)
 
 			binding := internal.Keybinding{
-				Modifiers: modifiers,
-				Key:       key,
+				Keys:      append(modifiers, key),
+				Namespace: "hammerspoon",
 				Breadcrumbs: internal.Breadcrumbs{
 					FileName: f.Name,
 					Line:     i + 1,
