@@ -52,6 +52,7 @@ func Parse(filePath string, debug bool) []internal.Keybinding {
 			keybindings = append(keybindings, internal.Keybinding{
 				Keys:      []string{w.Shortcut},
 				Namespace: "workspace",
+				Metadata:  w.Name,
 				Breadcrumbs: internal.Breadcrumbs{
 					FileName: file.Name,
 				},

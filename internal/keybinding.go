@@ -5,6 +5,7 @@ import "time"
 type Keybinding struct {
 	Keys        []string
 	Namespace   string
+	Metadata    string
 	Breadcrumbs Breadcrumbs
 	Telemetry   Telemetry
 }

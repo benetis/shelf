@@ -2,6 +2,7 @@ package display
 
 import (
 	"fmt"
+	"github.com/benetis/shelf/internal"
 	"strings"
 )
 
@@ -35,18 +36,19 @@ func (m Model) paintKeybindings(b *strings.Builder) {
 
 		paddedNamespace := fmt.Sprintf("%-15s", kb.Namespace)
 
-		lineInfo := fmt.Sprintf("Line: %d,", kb.Breadcrumbs.Line)
-		if kb.Breadcrumbs.Line == 0 {
-			lineInfo = ""
+		breadcrumbs := m.printBreadcrumbs(kb)
+
+		var metadata string
+		if kb.Metadata != "" {
+			metadata = fmt.Sprintf(" (%s)", kb.Metadata)
 		}
 
-		line := fmt.Sprintf("%s %s: %s (File: %s,%s %d ms)\n",
+		line := fmt.Sprintf("%s %s: %s %s %s\n",
 			cursor,
 			paddedNamespace,
 			keys,
-			kb.Breadcrumbs.FileName,
-			lineInfo,
-			kb.Telemetry.Parse.Milliseconds(),
+			metadata,
+			breadcrumbs,
 		)
 		b.WriteString(line)
 	}
@@ -54,6 +56,20 @@ func (m Model) paintKeybindings(b *strings.Builder) {
 	if len(m.keybindings) == 0 {
 		b.WriteString("No keybindings found.\n")
 	}
+}
+
+func (m Model) printBreadcrumbs(kb internal.Keybinding) string {
+	lineInfo := fmt.Sprintf("Line: %d,", kb.Breadcrumbs.Line)
+	if kb.Breadcrumbs.Line == 0 {
+		lineInfo = ""
+	}
+
+	breadcrumbs := fmt.Sprintf("(File: %s,%s %d ms)",
+		kb.Breadcrumbs.FileName,
+		lineInfo,
+		kb.Telemetry.Parse.Milliseconds(),
+	)
+	return breadcrumbs
 }
 
 func (m Model) paintDebugConsole(b *strings.Builder) int {
