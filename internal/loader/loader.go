@@ -22,8 +22,7 @@ func LoadFolder(folderPath string, debug bool) []File {
 	folder := replaceTilde(folderPath)
 
 	if debug {
-		log.Print("Loading folder at", folder)
-		log.Println("...")
+		log.Printf("Loading folder at %q...", folder)
 	}
 
 	if _, err := os.Stat(folder); os.IsNotExist(err) {
@@ -52,7 +51,7 @@ func LoadFolder(folderPath string, debug bool) []File {
 			return fmt.Errorf("too many files, max is %d", maxFiles)
 		}
 
-		file, err := LoadFile(path)
+		file, err := LoadFile(path, false) // Debug false because folder is already logged.
 		if err != nil {
 			return fmt.Errorf("cannot load file %q: %w", path, err)
 		}
@@ -66,7 +65,10 @@ func LoadFolder(folderPath string, debug bool) []File {
 	return loadedFiles
 }
 
-func LoadFile(path string) (File, error) {
+func LoadFile(path string, debug bool) (File, error) {
+	if debug {
+		log.Printf("Loading file at %q...", path)
+	}
 	f, err := os.Open(replaceTilde(path))
 	if err != nil {
 		return File{}, fmt.Errorf("cannot open file: %w", err)

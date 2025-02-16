@@ -26,7 +26,7 @@ func Parse(filePath string, debug bool) []internal.Keybinding {
 	startLoad := time.Now()
 	var keybindings []internal.Keybinding
 
-	file, err := loader.LoadFile(filePath)
+	file, err := loader.LoadFile(filePath, debug)
 	if err != nil {
 		log.Printf("Error loading flashspace file: %s\n", err)
 		return keybindings
