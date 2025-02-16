@@ -52,7 +52,7 @@ func LoadFolder(folderPath string, debug bool) []File {
 			return fmt.Errorf("too many files, max is %d", maxFiles)
 		}
 
-		file, err := loadFile(path)
+		file, err := LoadFile(path)
 		if err != nil {
 			return fmt.Errorf("cannot load file %q: %w", path, err)
 		}
@@ -66,8 +66,8 @@ func LoadFolder(folderPath string, debug bool) []File {
 	return loadedFiles
 }
 
-func loadFile(path string) (File, error) {
-	f, err := os.Open(path)
+func LoadFile(path string) (File, error) {
+	f, err := os.Open(replaceTilde(path))
 	if err != nil {
 		return File{}, fmt.Errorf("cannot open file: %w", err)
 	}

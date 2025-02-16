@@ -1,4 +1,4 @@
-package hammerparser
+package hammerspoon
 
 import (
 	"github.com/benetis/shelf/internal"
