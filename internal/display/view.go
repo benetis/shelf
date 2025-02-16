@@ -14,16 +14,16 @@ func (m Model) View() string {
 	b.WriteString(centerText(statusBar, m.terminal.width) + "\n")
 	b.WriteString(strings.Repeat("─", m.terminal.width) + "\n\n")
 
-	m.painKeybindings(&b)
+	m.paintKeybindings(&b)
 
-	debugLines := m.painDebugConsole(&b)
+	debugLines := m.paintDebugConsole(&b)
 
 	m.fillRestOfHeightWithBlank(&b, debugLines)
 
 	return b.String()
 }
 
-func (m Model) painKeybindings(b *strings.Builder) {
+func (m Model) paintKeybindings(b *strings.Builder) {
 	b.WriteString("Keybindings:\n\n")
 	for i, kb := range m.keybindings {
 		cursor := " "
@@ -48,7 +48,7 @@ func (m Model) painKeybindings(b *strings.Builder) {
 	}
 }
 
-func (m Model) painDebugConsole(b *strings.Builder) int {
+func (m Model) paintDebugConsole(b *strings.Builder) int {
 	if m.debugEnabled {
 		b.WriteString("\n" + strings.Repeat("─", m.terminal.width) + "\n")
 		b.WriteString(centerText("DEBUG PANEL", m.terminal.width) + "\n")
