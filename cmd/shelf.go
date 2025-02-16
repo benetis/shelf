@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/benetis/shelf/internal"
 	"github.com/benetis/shelf/internal/display"
+	"github.com/benetis/shelf/internal/flashspace"
 	"github.com/benetis/shelf/internal/hammerspoon"
 	tea "github.com/charmbracelet/bubbletea"
 	"log"
@@ -27,6 +28,10 @@ var rootCmd = &cobra.Command{
 		// hammerspoon
 		defaultPath := "~/.hammerspoon"
 		keybindings = slices.Concat(keybindings, hammerspoon.Parse(defaultPath, debugFlag))
+
+		// flashspace
+		defaultPath = "~/.config/flashspace/profiles.json"
+		keybindings = slices.Concat(keybindings, flashspace.Parse(defaultPath, debugFlag))
 
 		p := tea.NewProgram(display.InitialModel(keybindings, debugFlag, debugWriter.Channel()))
 

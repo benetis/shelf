@@ -17,7 +17,7 @@ func Parse(folderPath string, debug bool) []internal.Keybinding {
 	loadDuration := time.Since(startLoad)
 
 	if debug {
-		log.Printf("Loaded %d files in %s\n", len(files), loadDuration)
+		log.Printf("Loaded hammerspoon %d files in %s\n", len(files), loadDuration)
 	}
 
 	re := regexp.MustCompile(
@@ -43,7 +43,7 @@ func Parse(folderPath string, debug bool) []internal.Keybinding {
 	}
 
 	if debug {
-		log.Printf("Found %d keybindings\n", len(keybindings))
+		log.Printf("Found %d hammerspoon keybindings\n", len(keybindings))
 	}
 
 	return keybindings
