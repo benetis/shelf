@@ -11,7 +11,12 @@ type keybindingItem struct {
 }
 
 func (i keybindingItem) Title() string {
-	return fmt.Sprintf("%s: %s", i.kb.Namespace, strings.Join(i.kb.Keys, "+"))
+	metadata := ""
+	if i.kb.Metadata != "" {
+		metadata = fmt.Sprintf(" (%s)", i.kb.Metadata)
+	}
+
+	return fmt.Sprintf("%s%s: %s", i.kb.Namespace, metadata, strings.Join(i.kb.Keys, "+"))
 }
 
 func (i keybindingItem) Description() string {
